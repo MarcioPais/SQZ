@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
     encode->add_option("input", input_file, "Input PNG/PGM/PPM/PNM image")->option_text(" ")->required()->check(CLI::ExistingFile);
     encode->add_option("output", output_file, "Output image")->option_text(" ")->required();
     encode->add_option("budget", budget, "Requested output image size")->option_text("(optional)")->check(CLI::PositiveNumber);
-    encode->add_option("-l,--level", image.dwt_levels, "Number of DWT decompositions to perform (default: 5)")->option_text("(1.." + std::to_string(SQZ_DWT_MAX_LEVEL) + ")")->check(CLI::Range(1, SQZ_DWT_MAX_LEVEL))->default_val(5);
+    encode->add_option("-l,--level", image.dwt_levels, "Number of DWT decompositions to perform (default: 5)")->option_text("(1.." + std::to_string(SQZ_DWT_MAX_LEVEL) + ")")->check(CLI::Range(1, SQZ_DWT_MAX_LEVEL))->default_val(SQZ_DWT_MAX_LEVEL);
     encode->add_option("-m,--mode", image.color_mode, "Internal color mode (default: Grayscale / YCoCg-R)\n0: Grayscale\n1: YCoCg-R\n2: Oklab\n3: logl1")->option_text("(0.." + std::to_string(SQZ_COLOR_MODE_COUNT - 1) + ")")->check(CLI::Range(0, SQZ_COLOR_MODE_COUNT - 1))->default_val(SQZ_COLOR_MODE_YCOCG_R);
     encode->add_option("-o,--order", image.scan_order, "DWT coefficient scanning order (default: Snake)\n0: Raster\n1: Snake\n2: Morton\n3: Hilbert")->option_text("(0.." + std::to_string(SQZ_SCAN_ORDER_COUNT - 1) + ")")->check(CLI::Range(0, SQZ_SCAN_ORDER_COUNT - 1))->default_val(SQZ_SCAN_ORDER_SNAKE);
     encode->add_flag("-s,--subsampling", image.subsampling, "Use additional chroma subsampling")->option_text(" ");
@@ -55,7 +55,12 @@ int main(int argc, char* argv[]) {
     decode->add_option("input", input_file, "Input SQZ image")->option_text(" ")->required()->check(CLI::ExistingFile);
     decode->add_option("output", output_file, "Output PGM image")->option_text(" ")->required();
     decode->add_option("budget", budget, "Size of the input compressed data that will be consumed")->option_text("(optional)")->check(CLI::PositiveNumber);
-    CLI11_PARSE(app, argc, argv);
+    try {
+        app.parse(argc, argv);
+    }
+    catch (const CLI::ParseError& e) {
+        return app.exit(CLI::CallForAllHelp());
+    }
     std::FILE *input = nullptr, *output = nullptr;
     std::uint8_t *src = nullptr, *buffer = nullptr;
     if (encode->parsed()) {
