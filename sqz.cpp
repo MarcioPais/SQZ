@@ -55,6 +55,13 @@ int main(int argc, char* argv[]) {
     decode->add_option("input", input_file, "Input SQZ image")->option_text(" ")->required()->check(CLI::ExistingFile);
     decode->add_option("output", output_file, "Output PGM image")->option_text(" ")->required();
     decode->add_option("budget", budget, "Size of the input compressed data that will be consumed")->option_text("(optional)")->check(CLI::PositiveNumber);
+    app.set_help_flag("");
+    app.set_help_all_flag("-h, --help");
+    if (argc<2) {
+        std::cout << "Usage: " << argv[0] << " <command> [options] <input-file> <output-file>\n";
+        std::cout << "Run with -h or --help for more information\n";
+        return 1;
+        }
     CLI11_PARSE(app, argc, argv);
     std::FILE *input = nullptr, *output = nullptr;
     std::uint8_t *src = nullptr, *buffer = nullptr;
